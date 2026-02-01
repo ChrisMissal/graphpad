@@ -9,20 +9,171 @@
         margin: 0;
         padding: 20px;
         font-family: Arial, sans-serif;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin-top: 0;
+        color: #333;
+      }
+      .controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .control-group {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      label {
+        font-weight: 600;
+        color: #555;
+      }
+      select, input, button {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      select {
+        min-width: 200px;
+      }
+      input {
+        min-width: 120px;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      button:active {
+        background: #004085;
+      }
+      .add-section {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
       }
       #graph-container {
         width: 100%;
         height: 600px;
-        border: 1px solid #ccc;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
-      h1 {
-        margin-top: 0;
+      .legend {
+        margin-top: 15px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .legend h3 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        color: #333;
+      }
+      .legend-items {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .legend-color {
+        width: 40px;
+        height: 3px;
+        border-radius: 2px;
       }
     </style>
   </head>
   <body>
-    <h1>GraphPad - Graph Visualization</h1>
-    <div id="graph-container"></div>
+    <div class="container">
+      <h1>GraphPad - Graph Visualization</h1>
+      
+      <div class="controls">
+        <div class="control-group">
+          <label for="dataset-select">Dataset:</label>
+          <select id="dataset-select">
+            <option value="taxonomy">Animal Taxonomy</option>
+            <option value="family">Family Tree</option>
+            <option value="organization">Organization</option>
+            <option value="empty">Empty Graph</option>
+          </select>
+        </div>
+        
+        <div class="add-section">
+          <input type="text" id="node-id" placeholder="Node ID" />
+          <input type="text" id="node-label" placeholder="Node Label" />
+          <button id="add-node-btn">Add Node</button>
+        </div>
+        
+        <div class="add-section">
+          <input type="text" id="edge-from" placeholder="From Node" />
+          <input type="text" id="edge-to" placeholder="To Node" />
+          <select id="edge-relation">
+            <option value="is-a">is-a</option>
+            <option value="parent-of">parent-of</option>
+            <option value="manages">manages</option>
+            <option value="works-with">works-with</option>
+          </select>
+          <button id="add-edge-btn">Add Edge</button>
+        </div>
+      </div>
+      
+      <div id="graph-container"></div>
+      
+      <div class="legend">
+        <h3>Edge Types</h3>
+        <div class="legend-items">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #2196F3;"></div>
+            <span>is-a</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #4CAF50;"></div>
+            <span>parent-of</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #FF9800;"></div>
+            <span>manages</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #9C27B0;"></div>
+            <span>works-with</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #607D8B; opacity: 0.6;"></div>
+            <span>transitive</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

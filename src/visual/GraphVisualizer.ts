@@ -4,6 +4,23 @@ import type { GraphEngine } from '../graph/GraphEngine';
 export class GraphVisualizer {
   private network: Network | null = null;
 
+  private getEdgeColor(relation: string): string {
+    // Check if it's a transitive edge (contains →)
+    if (relation.includes('→')) {
+      return '#607D8B'; // Gray for transitive
+    }
+    
+    // Color by base relation type
+    const colors: Record<string, string> = {
+      'is-a': '#2196F3',      // Blue
+      'parent-of': '#4CAF50', // Green
+      'manages': '#FF9800',   // Orange
+      'works-with': '#9C27B0' // Purple
+    };
+    
+    return colors[relation] || '#999999'; // Default gray
+  }
+
   render(engine: GraphEngine, containerId: string): void {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -15,13 +32,26 @@ export class GraphVisualizer {
       label: node.label
     }));
 
-    const edges = engine.getEdges().map((edge, index) => ({
-      id: `edge-${index}`,
-      from: edge.source,
-      to: edge.target,
-      label: edge.relation,
-      arrows: 'to'
-    }));
+    const edges = engine.getEdges().map((edge, index) => {
+      const color = this.getEdgeColor(edge.relation);
+      const isTransitive = edge.relation.includes('→');
+      
+      return {
+        id: `edge-${index}`,
+        from: edge.source,
+        to: edge.target,
+        label: edge.relation,
+        arrows: 'to',
+        color: {
+          color: color,
+          highlight: color,
+          hover: color,
+          opacity: isTransitive ? 0.5 : 1.0
+        },
+        width: isTransitive ? 1 : 2,
+        dashes: isTransitive
+      };
+    });
 
     const data = {
       nodes: nodes,
@@ -44,8 +74,10 @@ export class GraphVisualizer {
           }
         },
         font: {
-          size: 12,
-          align: 'middle'
+          size: 11,
+          align: 'middle',
+          background: 'white',
+          strokeWidth: 0
         },
         smooth: {
           type: 'curvedCW',
