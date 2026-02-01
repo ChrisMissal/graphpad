@@ -1,0 +1,18 @@
+{
+  "name": "graphpad",
+  "version": "0.0.1",
+  "description": "Minimal TypeScript graph visualization project",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11"
+  },
+  "dependencies": {
+    "@types/graphlib": "^2.1.12",
+    "graphlib": "^2.1.8",
+    "vis-network": "^9.1.9"
+  }
+}
