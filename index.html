@@ -5,11 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GraphPad</title>
     <style>
+      :root {
+        color-scheme: light dark;
+        --page-bg: #f5f5f5;
+        --panel-bg: #ffffff;
+        --panel-alt-bg: #f8f9fa;
+        --text-primary: #333333;
+        --text-secondary: #555555;
+        --border-color: #dddddd;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --button-bg: #007bff;
+        --button-hover: #0056b3;
+        --button-active: #004085;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page-bg: #0f1115;
+          --panel-bg: #181b22;
+          --panel-alt-bg: #202430;
+          --text-primary: #f5f6f8;
+          --text-secondary: #c2c7d0;
+          --border-color: #2a2f3a;
+          --shadow-color: rgba(0, 0, 0, 0.5);
+          --button-bg: #3b82f6;
+          --button-hover: #2563eb;
+          --button-active: #1d4ed8;
+        }
+      }
       body {
         margin: 0;
         padding: 20px;
         font-family: Arial, sans-serif;
-        background: #f5f5f5;
+        background: var(--page-bg);
+        color: var(--text-primary);
       }
       .container {
         max-width: 1400px;
@@ -17,7 +45,7 @@
       }
       h1 {
         margin-top: 0;
-        color: #333;
+        color: var(--text-primary);
       }
       .controls {
         display: flex;
@@ -25,10 +53,40 @@
         margin-bottom: 20px;
         flex-wrap: wrap;
         align-items: center;
-        background: white;
+        background: var(--panel-bg);
         padding: 15px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px var(--shadow-color);
+      }
+      .controls-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: 12px;
+      }
+      .controls-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      .controls-body {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+        width: 100%;
+      }
+      .controls.collapsed .controls-body {
+        display: none;
+      }
+      .controls-toggle {
+        background: transparent;
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+      }
+      .controls-toggle:hover {
+        background: var(--panel-alt-bg);
       }
       .control-group {
         display: flex;
@@ -37,13 +95,17 @@
       }
       label {
         font-weight: 600;
-        color: #555;
+        color: var(--text-secondary);
       }
       select, input, button {
         padding: 8px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         font-size: 14px;
+      }
+      select, input {
+        background: var(--panel-bg);
+        color: var(--text-primary);
       }
       select {
         min-width: 200px;
@@ -52,18 +114,18 @@
         min-width: 120px;
       }
       button {
-        background: #007bff;
-        color: white;
+        background: var(--button-bg);
+        color: #fff;
         border: none;
         cursor: pointer;
         font-weight: 500;
         transition: background 0.2s;
       }
       button:hover {
-        background: #0056b3;
+        background: var(--button-hover);
       }
       button:active {
-        background: #004085;
+        background: var(--button-active);
       }
       .add-section {
         display: flex;
@@ -71,28 +133,54 @@
         flex-wrap: wrap;
         align-items: center;
         padding: 10px;
-        background: #f8f9fa;
+        background: var(--panel-alt-bg);
         border-radius: 4px;
+      }
+      .settings {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+        background: var(--panel-alt-bg);
+        border-radius: 4px;
+        min-width: 280px;
+      }
+      .settings-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      .settings-row input[type="text"] {
+        min-width: 140px;
+      }
+      .settings-row input[type="color"] {
+        padding: 0;
+        width: 44px;
+        height: 36px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background: var(--panel-bg);
       }
       #graph-container {
         width: 100%;
         height: 600px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color);
         border-radius: 8px;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background: var(--panel-bg);
+        box-shadow: 0 2px 4px var(--shadow-color);
       }
       .legend {
         margin-top: 15px;
         padding: 15px;
-        background: white;
+        background: var(--panel-bg);
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px var(--shadow-color);
       }
       .legend h3 {
         margin: 0 0 10px 0;
         font-size: 16px;
-        color: #333;
+        color: var(--text-primary);
       }
       .legend-items {
         display: flex;
@@ -115,33 +203,87 @@
     <div class="container">
       <h1>GraphPad - Graph Visualization</h1>
       
-      <div class="controls">
-        <div class="control-group">
-          <label for="dataset-select">Dataset:</label>
-          <select id="dataset-select">
-            <option value="taxonomy">Animal Taxonomy</option>
-            <option value="family">Family Tree</option>
-            <option value="organization">Organization</option>
-            <option value="empty">Empty Graph</option>
-          </select>
+      <div class="controls" id="controls-panel">
+        <div class="controls-header">
+          <span class="controls-title">Controls</span>
+          <button class="controls-toggle" id="toggle-controls-btn" type="button" aria-expanded="true">
+            Minimize
+          </button>
         </div>
-        
-        <div class="add-section">
-          <input type="text" id="node-id" placeholder="Node ID" />
-          <input type="text" id="node-label" placeholder="Node Label" />
-          <button id="add-node-btn">Add Node</button>
-        </div>
-        
-        <div class="add-section">
-          <input type="text" id="edge-from" placeholder="From Node" />
-          <input type="text" id="edge-to" placeholder="To Node" />
-          <select id="edge-relation">
-            <option value="is-a">is-a</option>
-            <option value="parent-of">parent-of</option>
-            <option value="manages">manages</option>
-            <option value="works-with">works-with</option>
-          </select>
-          <button id="add-edge-btn">Add Edge</button>
+        <div class="controls-body">
+          <div class="control-group">
+            <label for="dataset-select">Dataset:</label>
+            <select id="dataset-select">
+              <option value="taxonomy">Animal Taxonomy</option>
+              <option value="family">Family Tree</option>
+              <option value="organization">Organization</option>
+              <option value="empty">Empty Graph</option>
+            </select>
+          </div>
+          
+          <div class="add-section">
+            <input type="text" id="node-id" placeholder="Node ID" />
+            <input type="text" id="node-label" placeholder="Node Label" />
+            <button id="add-node-btn">Add Node</button>
+          </div>
+          
+          <div class="add-section">
+            <input type="text" id="edge-from" placeholder="From Node" />
+            <input type="text" id="edge-to" placeholder="To Node" />
+            <select id="edge-relation">
+              <option value="is-a">is-a</option>
+              <option value="parent-of">parent-of</option>
+              <option value="manages">manages</option>
+              <option value="works-with">works-with</option>
+            </select>
+            <button id="add-edge-btn">Add Edge</button>
+          </div>
+
+          <div class="settings">
+            <div class="settings-row">
+              <label for="node-shape">Node shape:</label>
+              <select id="node-shape">
+                <option value="box">box</option>
+                <option value="ellipse">ellipse</option>
+                <option value="circle">circle</option>
+                <option value="database">database</option>
+                <option value="diamond">diamond</option>
+                <option value="dot">dot</option>
+                <option value="square">square</option>
+                <option value="star">star</option>
+                <option value="triangle">triangle</option>
+                <option value="triangleDown">triangleDown</option>
+                <option value="hexagon">hexagon</option>
+                <option value="text">text</option>
+                <option value="image">image</option>
+                <option value="circularImage">circularImage</option>
+              </select>
+            </div>
+            <div class="settings-row">
+              <label>is-a:</label>
+              <input type="text" data-relation-label="is-a" />
+              <input type="color" data-relation-color="is-a" />
+            </div>
+            <div class="settings-row">
+              <label>parent-of:</label>
+              <input type="text" data-relation-label="parent-of" />
+              <input type="color" data-relation-color="parent-of" />
+            </div>
+            <div class="settings-row">
+              <label>manages:</label>
+              <input type="text" data-relation-label="manages" />
+              <input type="color" data-relation-color="manages" />
+            </div>
+            <div class="settings-row">
+              <label>works-with:</label>
+              <input type="text" data-relation-label="works-with" />
+              <input type="color" data-relation-color="works-with" />
+            </div>
+            <div class="settings-row">
+              <label for="transitive-color">Transitive:</label>
+              <input type="color" id="transitive-color" />
+            </div>
+          </div>
         </div>
       </div>
       
@@ -150,25 +292,25 @@
       <div class="legend">
         <h3>Edge Types</h3>
         <div class="legend-items">
-          <div class="legend-item">
-            <div class="legend-color" style="background: #2196F3;"></div>
-            <span>is-a</span>
+          <div class="legend-item" data-relation-key="is-a">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>is-a</span>
           </div>
-          <div class="legend-item">
-            <div class="legend-color" style="background: #4CAF50;"></div>
-            <span>parent-of</span>
+          <div class="legend-item" data-relation-key="parent-of">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>parent-of</span>
           </div>
-          <div class="legend-item">
-            <div class="legend-color" style="background: #FF9800;"></div>
-            <span>manages</span>
+          <div class="legend-item" data-relation-key="manages">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>manages</span>
           </div>
-          <div class="legend-item">
-            <div class="legend-color" style="background: #9C27B0;"></div>
-            <span>works-with</span>
+          <div class="legend-item" data-relation-key="works-with">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>works-with</span>
           </div>
-          <div class="legend-item">
-            <div class="legend-color" style="background: #607D8B; opacity: 0.5;"></div>
-            <span>transitive</span>
+          <div class="legend-item" data-relation-key="transitive">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>transitive</span>
           </div>
         </div>
       </div>

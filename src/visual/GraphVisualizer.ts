@@ -1,46 +1,62 @@
 import { Network } from 'vis-network';
 import type { GraphEngine } from '../graph/GraphEngine';
 
+export interface RelationStyle {
+  label: string;
+  color: string;
+}
+
+export interface GraphVisualConfig {
+  relationStyles: Record<string, RelationStyle>;
+  transitiveColor: string;
+  nodeShape: string;
+  nodeImage?: string;
+}
+
 export class GraphVisualizer {
   private network: Network | null = null;
 
-  private getEdgeColor(relation: string): string {
-    // Check if it's a transitive edge (contains →)
+  private getEdgeColor(relation: string, config: GraphVisualConfig): string {
     if (relation.includes('→')) {
-      return '#607D8B'; // Gray for transitive
+      return config.transitiveColor;
     }
-    
-    // Color by base relation type
-    const colors: Record<string, string> = {
-      'is-a': '#2196F3',      // Blue
-      'parent-of': '#4CAF50', // Green
-      'manages': '#FF9800',   // Orange
-      'works-with': '#9C27B0' // Purple
-    };
-    
-    return colors[relation] || '#999999'; // Default gray
+
+    return config.relationStyles[relation]?.color || '#999999';
   }
 
-  render(engine: GraphEngine, containerId: string): void {
+  private getEdgeLabel(relation: string, config: GraphVisualConfig): string {
+    if (relation.includes('→')) {
+      return relation
+        .split('→')
+        .map(part => config.relationStyles[part]?.label ?? part)
+        .join(' → ');
+    }
+
+    return config.relationStyles[relation]?.label || relation;
+  }
+
+  render(engine: GraphEngine, containerId: string, config: GraphVisualConfig): void {
     const container = document.getElementById(containerId);
     if (!container) {
       throw new Error(`Container with id "${containerId}" not found`);
     }
 
+    const useImage = config.nodeShape === 'image' || config.nodeShape === 'circularImage';
     const nodes = engine.getNodes().map(node => ({
       id: node.id,
-      label: node.label
+      label: node.label,
+      image: useImage ? config.nodeImage : undefined
     }));
 
     const edges = engine.getEdges().map((edge, index) => {
-      const color = this.getEdgeColor(edge.relation);
+      const color = this.getEdgeColor(edge.relation, config);
       const isTransitive = edge.relation.includes('→');
       
       return {
         id: `edge-${index}`,
         from: edge.source,
         to: edge.target,
-        label: edge.relation,
+        label: this.getEdgeLabel(edge.relation, config),
         arrows: 'to',
         color: {
           color: color,
@@ -60,7 +76,7 @@ export class GraphVisualizer {
 
     const options = {
       nodes: {
-        shape: 'box',
+        shape: config.nodeShape,
         margin: 10,
         font: {
           size: 14
