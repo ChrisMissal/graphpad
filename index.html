@@ -214,6 +214,7 @@
           <div class="control-group">
             <label for="dataset-select">Dataset:</label>
             <select id="dataset-select">
+              <option value="softwareEvolution">Software Evolution</option>
               <option value="taxonomy">Animal Taxonomy</option>
               <option value="family">Family Tree</option>
               <option value="organization">Organization</option>
@@ -235,6 +236,10 @@
               <option value="parent-of">parent-of</option>
               <option value="manages">manages</option>
               <option value="works-with">works-with</option>
+              <option value="evolves-into">evolves-into</option>
+              <option value="enables">enables</option>
+              <option value="built-with">built-with</option>
+              <option value="influenced">influenced</option>
             </select>
             <button id="add-edge-btn">Add Edge</button>
           </div>
@@ -280,6 +285,26 @@
               <input type="color" data-relation-color="works-with" />
             </div>
             <div class="settings-row">
+              <label>evolves-into:</label>
+              <input type="text" data-relation-label="evolves-into" />
+              <input type="color" data-relation-color="evolves-into" />
+            </div>
+            <div class="settings-row">
+              <label>enables:</label>
+              <input type="text" data-relation-label="enables" />
+              <input type="color" data-relation-color="enables" />
+            </div>
+            <div class="settings-row">
+              <label>built-with:</label>
+              <input type="text" data-relation-label="built-with" />
+              <input type="color" data-relation-color="built-with" />
+            </div>
+            <div class="settings-row">
+              <label>influenced:</label>
+              <input type="text" data-relation-label="influenced" />
+              <input type="color" data-relation-color="influenced" />
+            </div>
+            <div class="settings-row">
               <label for="transitive-color">Transitive:</label>
               <input type="color" id="transitive-color" />
             </div>
@@ -307,6 +332,22 @@
           <div class="legend-item" data-relation-key="works-with">
             <div class="legend-color" data-relation-color-target></div>
             <span data-relation-label-target>works-with</span>
+          </div>
+          <div class="legend-item" data-relation-key="evolves-into">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>evolves-into</span>
+          </div>
+          <div class="legend-item" data-relation-key="enables">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>enables</span>
+          </div>
+          <div class="legend-item" data-relation-key="built-with">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>built-with</span>
+          </div>
+          <div class="legend-item" data-relation-key="influenced">
+            <div class="legend-color" data-relation-color-target></div>
+            <span data-relation-label-target>influenced</span>
           </div>
           <div class="legend-item" data-relation-key="transitive">
             <div class="legend-color" data-relation-color-target></div>
