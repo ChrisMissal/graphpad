@@ -9,7 +9,11 @@ const relationStyles: Record<string, RelationStyle> = {
   'is-a': { label: 'is-a', color: '#2196F3' },
   'parent-of': { label: 'parent-of', color: '#4CAF50' },
   'manages': { label: 'manages', color: '#FF9800' },
-  'works-with': { label: 'works-with', color: '#9C27B0' }
+  'works-with': { label: 'works-with', color: '#9C27B0' },
+  'evolves-into': { label: 'evolves-into', color: '#00BCD4' },
+  'enables': { label: 'enables', color: '#8BC34A' },
+  'built-with': { label: 'built-with', color: '#FF5722' },
+  'influenced': { label: 'influenced', color: '#795548' }
 };
 
 const defaultNodeImage = encodeURI(
@@ -53,8 +57,8 @@ function loadDataset(datasetKey: string): void {
   console.log('Edges:', engine.getEdges());
 }
 
-// Initialize with taxonomy dataset
-loadDataset('taxonomy');
+// Initialize with software evolution dataset
+loadDataset('softwareEvolution');
 
 // Dataset selector
 const datasetSelect = document.getElementById('dataset-select') as HTMLSelectElement;
