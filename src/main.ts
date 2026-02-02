@@ -1,9 +1,31 @@
 import { GraphEngine } from './graph/GraphEngine';
-import { GraphVisualizer } from './visual/GraphVisualizer';
+import { GraphVisualizer, type GraphVisualConfig, type RelationStyle } from './visual/GraphVisualizer';
 import { datasets } from './datasets';
 
 let engine = new GraphEngine();
 const visualizer = new GraphVisualizer();
+
+const relationStyles: Record<string, RelationStyle> = {
+  'is-a': { label: 'is-a', color: '#2196F3' },
+  'parent-of': { label: 'parent-of', color: '#4CAF50' },
+  'manages': { label: 'manages', color: '#FF9800' },
+  'works-with': { label: 'works-with', color: '#9C27B0' }
+};
+
+const defaultNodeImage = encodeURI(
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='80' height='80' rx='16' fill='%23cbd5f5'/><path d='M20 40h40' stroke='%23334' stroke-width='6' stroke-linecap='round'/><circle cx='40' cy='30' r='10' fill='%23999'/></svg>"
+);
+
+const visualConfig: GraphVisualConfig = {
+  relationStyles,
+  transitiveColor: '#607D8B',
+  nodeShape: 'box',
+  nodeImage: defaultNodeImage
+};
+
+function renderGraph(): void {
+  visualizer.render(engine, 'graph-container', visualConfig);
+}
 
 // Load a dataset into the engine
 function loadDataset(datasetKey: string): void {
@@ -24,7 +46,7 @@ function loadDataset(datasetKey: string): void {
   });
   
   // Render
-  visualizer.render(engine, 'graph-container');
+  renderGraph();
   
   console.log('Graph rendered successfully!');
   console.log('Nodes:', engine.getNodes());
@@ -55,7 +77,7 @@ if (addNodeBtn && nodeIdInput && nodeLabelInput) {
     
     if (id) {
       engine.addNode(id, label);
-      visualizer.render(engine, 'graph-container');
+      renderGraph();
       
       // Clear inputs
       nodeIdInput.value = '';
@@ -81,7 +103,7 @@ if (addEdgeBtn && edgeFromInput && edgeToInput && edgeRelationSelect) {
     if (from && to) {
       try {
         engine.addEdge(from, to, relation);
-        visualizer.render(engine, 'graph-container');
+        renderGraph();
         
         // Clear inputs
         edgeFromInput.value = '';
@@ -95,3 +117,135 @@ if (addEdgeBtn && edgeFromInput && edgeToInput && edgeRelationSelect) {
     }
   });
 }
+
+const relationSelect = document.getElementById('edge-relation') as HTMLSelectElement | null;
+const legendItems = document.querySelectorAll('[data-relation-key]');
+const relationLabelInputs = document.querySelectorAll('[data-relation-label]');
+const relationColorInputs = document.querySelectorAll('[data-relation-color]');
+const transitiveColorInput = document.getElementById('transitive-color') as HTMLInputElement | null;
+const nodeShapeSelect = document.getElementById('node-shape') as HTMLSelectElement | null;
+const controlsPanel = document.getElementById('controls-panel');
+const toggleControlsBtn = document.getElementById('toggle-controls-btn') as HTMLButtonElement | null;
+
+function syncRelationSelectLabels(): void {
+  if (!relationSelect) return;
+  Array.from(relationSelect.options).forEach(option => {
+    const relationStyle = relationStyles[option.value];
+    if (relationStyle) {
+      option.textContent = relationStyle.label;
+    }
+  });
+}
+
+function syncLegend(): void {
+  legendItems.forEach(item => {
+    const element = item as HTMLElement;
+    const key = element.dataset.relationKey;
+    if (!key) return;
+    const colorTarget = element.querySelector('[data-relation-color-target]') as HTMLElement | null;
+    const labelTarget = element.querySelector('[data-relation-label-target]') as HTMLElement | null;
+
+    if (key === 'transitive') {
+      if (colorTarget) {
+        colorTarget.style.background = visualConfig.transitiveColor;
+        colorTarget.style.opacity = '0.5';
+      }
+      if (labelTarget) {
+        labelTarget.textContent = 'transitive';
+      }
+      return;
+    }
+
+    const style = relationStyles[key];
+    if (!style) return;
+    if (colorTarget) {
+      colorTarget.style.background = style.color;
+      colorTarget.style.opacity = '1';
+    }
+    if (labelTarget) {
+      labelTarget.textContent = style.label;
+    }
+  });
+}
+
+function syncControls(): void {
+  relationLabelInputs.forEach(input => {
+    const element = input as HTMLInputElement;
+    const key = element.dataset.relationLabel;
+    if (!key) return;
+    const style = relationStyles[key];
+    if (style) {
+      element.value = style.label;
+    }
+  });
+
+  relationColorInputs.forEach(input => {
+    const element = input as HTMLInputElement;
+    const key = element.dataset.relationColor;
+    if (!key) return;
+    const style = relationStyles[key];
+    if (style) {
+      element.value = style.color;
+    }
+  });
+
+  if (transitiveColorInput) {
+    transitiveColorInput.value = visualConfig.transitiveColor;
+  }
+
+  if (nodeShapeSelect) {
+    nodeShapeSelect.value = visualConfig.nodeShape;
+  }
+}
+
+relationLabelInputs.forEach(input => {
+  input.addEventListener('input', event => {
+    const target = event.target as HTMLInputElement;
+    const key = target.dataset.relationLabel;
+    if (!key) return;
+    relationStyles[key].label = target.value.trim() || key;
+    syncRelationSelectLabels();
+    syncLegend();
+    renderGraph();
+  });
+});
+
+relationColorInputs.forEach(input => {
+  input.addEventListener('input', event => {
+    const target = event.target as HTMLInputElement;
+    const key = target.dataset.relationColor;
+    if (!key) return;
+    relationStyles[key].color = target.value;
+    syncLegend();
+    renderGraph();
+  });
+});
+
+if (transitiveColorInput) {
+  transitiveColorInput.addEventListener('input', event => {
+    const target = event.target as HTMLInputElement;
+    visualConfig.transitiveColor = target.value;
+    syncLegend();
+    renderGraph();
+  });
+}
+
+if (nodeShapeSelect) {
+  nodeShapeSelect.addEventListener('change', event => {
+    const target = event.target as HTMLSelectElement;
+    visualConfig.nodeShape = target.value;
+    renderGraph();
+  });
+}
+
+if (controlsPanel && toggleControlsBtn) {
+  toggleControlsBtn.addEventListener('click', () => {
+    const isCollapsed = controlsPanel.classList.toggle('collapsed');
+    toggleControlsBtn.textContent = isCollapsed ? 'Expand' : 'Minimize';
+    toggleControlsBtn.setAttribute('aria-expanded', String(!isCollapsed));
+  });
+}
+
+syncControls();
+syncRelationSelectLabels();
+syncLegend();
